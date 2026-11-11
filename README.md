@@ -2,12 +2,12 @@
 
 A self-contained, browser-based live transcription app. The current interface is deliberately transcription-only.
 
-- **Reported live address:** https://transcriptions.analyticah.co.za
+- **Production hostname:** `transcribe.analyticah.co.za` (use HTTPS for microphone access)
 - **Repository:** https://github.com/cdfisher8/analyticah-transcription
 - **Entry point:** `index.html` (no build step or runtime dependencies)
 - **Default branch:** `main`
 
-**Deployment mismatch to resolve:** the existing `CNAME` file names `transcribe.analyticah.co.za`, not the reported live address above. Do not change DNS or publish until the intended hosting setup and domain are confirmed. The repository configuration alone does not prove where the live page is served.
+**Deployment:** GitHub Pages publishes `main` at `transcribe.analyticah.co.za`, which matches the existing `CNAME`. Preserve this hostname and its DNS. The different name `transcriptions.analyticah.co.za` is not this app’s deployment. Verify the HTTPS certificate and redirect before relying on live microphone access.
 
 ## Current features
 
@@ -68,8 +68,8 @@ The tests execute the actual inline application script with simulated browser AP
 
 ## Publishing
 
-Keep changes on a feature branch for review before merging. Confirm whether Afrihost serves the page itself or supplies DNS for GitHub Pages. Do not assume both deployment paths are active.
+Keep changes on a feature branch for review before merging. The existing GitHub Pages workflow publishes `main`, so merging into `main` is a production deployment. Monitor that exact commit’s Pages build and deployment.
 
-For GitHub Pages, verify the publishing source, intended custom domain, DNS target, and HTTPS certificate in repository Settings > Pages before changing configuration. For Afrihost hosting, verify that the intended subdomain serves this `index.html` over valid HTTPS. In either case, check the actual live page after publication and repeat the manual checks above.
+The intended domain is `transcribe.analyticah.co.za`, whose DNS already points to `cdfisher8.github.io`. In repository Settings > Pages, verify the custom domain, certificate status, and Enforce HTTPS setting before changing configuration. No DNS migration is needed to publish code updates. After publication, check that the live HTML matches the deployed commit and repeat the manual browser checks above.
 
 Never commit API keys, OAuth client secrets, recordings, or private transcripts. Future AI transcription or cloud storage requires a suitable backend and user consent.
