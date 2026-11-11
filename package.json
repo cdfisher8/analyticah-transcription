@@ -4,9 +4,10 @@
   "private": true,
   "description": "Static browser transcription app",
   "scripts": {
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "start": "node --env-file-if-exists=.env.local server/app.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.9.0"
   }
 }

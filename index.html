@@ -8,6 +8,18 @@
 <main><h1>🎙 Transcription</h1><p class="muted">Live speech and song-lyric transcription · Browser edition</p>
 <section class="panel"><div class="controls"><label for="lang">Language</label><select id="lang"><option value="en-ZA">English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="af-ZA">Afrikaans</option></select><label for="audiotype">Audio type</label><select id="audiotype"><option value="speech">Speech / conversation</option><option value="song">Song / music with lyrics</option><option value="instrumental">Instrumental / other sound</option></select></div><div class="controls" style="margin-top:14px"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p>Status: <span id="status" role="status">Ready</span></p><p id="quality" class="muted">Microphone not started</p><p class="hint" id="microphone-help" hidden></p><p class="hint">Song mode attempts to recognise audible lyrics, but browser speech recognition is not designed for music and may miss words. Instrumental audio has no lyrics. Audio type is selected manually; automatic music detection is not available.</p></section>
 
+<section class="panel" aria-labelledby="upload-title">
+<h2 id="upload-title">Upload a recording</h2>
+<p class="hint">Voice notes and audio files: MP3, M4A, WAV, WebM, OGG/Opus, FLAC, AAC, and audio MP4/MPEG. Up to 25 MB and 30 minutes per file. The server checks and converts the audio before transcription.</p>
+<label for="audio-file">Choose one audio file</label>
+<input id="audio-file" type="file" accept=".mp3,.m4a,.wav,.webm,.mp4,.mpeg,.mpga,.ogg,.oga,.opus,.flac,.aac" style="max-width:100%;box-sizing:border-box;margin:8px 0 14px">
+<div><label for="upload-access-code">Upload access code</label><input id="upload-access-code" type="password" autocomplete="off" spellcheck="false" style="display:block;box-sizing:border-box;width:100%;max-width:420px;margin:8px 0;padding:10px;font:inherit;border-radius:8px" placeholder="Supplied by the app owner, not an API key"></div>
+<label class="hint" style="display:block;margin:14px 0"><input id="upload-consent" type="checkbox"> I have permission to send this recording to this app’s server and OpenAI for transcription. API charges may apply.</label>
+<div class="controls"><button id="upload-start" class="primary" disabled>Transcribe file</button><button id="upload-cancel" disabled>Cancel upload</button><button id="upload-retry">Check upload service</button></div>
+<p id="upload-status" role="status" class="hint">File transcription requires a configured server. Selecting a file does not upload it.</p>
+<p class="hint">Audio is temporarily processed on the app’s server and sent to OpenAI. The app does not keep an audio archive. The resulting transcript is saved in this browser. Cancelling may not cancel provider charges.</p>
+</section>
+
 <section class="panel"><h2>Transcript</h2><textarea id="transcript" aria-label="Transcript" placeholder="Recognised words appear here. You can edit the text."></textarea><p id="interim" aria-live="polite"></p><div class="controls"><button id="copy">Copy transcript</button><button id="save">Save .txt</button><button id="clear">Clear transcript</button></div><p class="hint" id="saved">Drafts are automatically saved in this browser only.</p></section>
 <p class="hint">Use a recent Chrome or Edge browser and allow microphone access. Speech recognition may use an online service. Check all transcription results, especially song lyrics.</p></main>
 <script>
@@ -396,4 +408,7 @@ if (initialIssue) {
   status('Microphone unavailable');
   showHelp(initialIssue);
 }
-</script></body></html>
+</script>
+<script src="upload-config.js"></script>
+<script src="upload.js"></script>
+</body></html>
