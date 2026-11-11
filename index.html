@@ -6,26 +6,370 @@
 </style></head><body>
 <aside class="sidebar" aria-label="Microphone sound level"><div class="mic" id="mic">🎙️</div><div class="title">MIC LEVEL</div><div class="vertical-meter" id="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill" id="fill"></div></div><div id="level">0 / 100</div></aside>
 <main><h1>🎙 Transcription</h1><p class="muted">Live speech and song-lyric transcription · Browser edition</p>
-<section class="panel"><div class="controls"><label for="lang">Language</label><select id="lang"><option value="en-ZA">English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="af-ZA">Afrikaans</option></select><label for="audiotype">Audio type</label><select id="audiotype"><option value="speech">Speech / conversation</option><option value="song">Song / music with lyrics</option><option value="instrumental">Instrumental / other sound</option></select></div><div class="controls" style="margin-top:14px"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p>Status: <span id="status" role="status">Ready</span></p><p id="quality" class="muted">Microphone not started</p><p class="hint">Song mode attempts to recognise audible lyrics, but browser speech recognition is not designed for music and may miss words. Instrumental audio has no lyrics. Audio type is selected manually; automatic music detection is not available.</p></section>
+<section class="panel"><div class="controls"><label for="lang">Language</label><select id="lang"><option value="en-ZA">English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="af-ZA">Afrikaans</option></select><label for="audiotype">Audio type</label><select id="audiotype"><option value="speech">Speech / conversation</option><option value="song">Song / music with lyrics</option><option value="instrumental">Instrumental / other sound</option></select></div><div class="controls" style="margin-top:14px"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p>Status: <span id="status" role="status">Ready</span></p><p id="quality" class="muted">Microphone not started</p><p class="hint" id="microphone-help" hidden></p><p class="hint">Song mode attempts to recognise audible lyrics, but browser speech recognition is not designed for music and may miss words. Instrumental audio has no lyrics. Audio type is selected manually; automatic music detection is not available.</p></section>
 
 <section class="panel"><h2>Transcript</h2><textarea id="transcript" aria-label="Transcript" placeholder="Recognised words appear here. You can edit the text."></textarea><p id="interim" aria-live="polite"></p><div class="controls"><button id="copy">Copy transcript</button><button id="save">Save .txt</button><button id="clear">Clear transcript</button></div><p class="hint" id="saved">Drafts are automatically saved in this browser only.</p></section>
 <p class="hint">Use a recent Chrome or Edge browser and allow microphone access. Speech recognition may use an online service. Check all transcription results, especially song lyrics.</p></main>
 <script>
-const $=id=>document.getElementById(id);
-const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
-let stream=null,ctx=null,analyser=null,frame=null,recognition=null,active=false,shouldListen=false,startToken=0,saveTimer=null;
-function status(message){$('status').textContent=message}
-function updateMeter(){if(!analyser)return;const data=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(data);let sum=0;for(const v of data){const x=(v-128)/128;sum+=x*x}const rms=Math.sqrt(sum/data.length);const db=rms>0?20*Math.log10(rms):-100;const n=Math.max(0,Math.min(100,Math.round((db+65)*2)));$('fill').style.height=n+'%';$('fill').style.background=n>88?'#f16c69':n>70?'#e8b34f':'#36c68b';$('meter').setAttribute('aria-valuenow',n);$('level').textContent=n+' / 100';$('quality').textContent=n<5?'Very quiet / no signal':n<20?'Low microphone input':n<75?'Microphone receiving sound':'Strong input — check for distortion';frame=requestAnimationFrame(updateMeter)}
-async function start(){if(active)return;const token=++startToken;active=true;shouldListen=true;$('start').disabled=true;$('stop').disabled=false;status('Requesting microphone…');try{const newStream=await navigator.mediaDevices.getUserMedia({audio:true});if(token!==startToken){newStream.getTracks().forEach(t=>t.stop());return}stream=newStream;ctx=new (window.AudioContext||window.webkitAudioContext)();await ctx.resume();if(token!==startToken){stop();return}analyser=ctx.createAnalyser();analyser.fftSize=2048;ctx.createMediaStreamSource(stream).connect(analyser);$('mic').textContent='🎤';updateMeter()}catch(e){stop();status('Microphone error: '+e.message);return}if(!Speech){status('Microphone active; speech recognition is unsupported here. Try Chrome or Edge.');return}recognition=new Speech();recognition.lang=$('lang').value;recognition.continuous=true;recognition.interimResults=true;recognition.onresult=e=>{let final='',partial='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t.trim()+' ';else partial+=t}if(final){const area=$('transcript');area.value+=(area.value&&!/\s$/.test(area.value)?' ':'')+final;area.scrollTop=area.scrollHeight;scheduleSave()}$('interim').textContent=partial};recognition.onerror=e=>{status('Recognition issue: '+e.error);if(['not-allowed','service-not-allowed','language-not-supported','audio-capture'].includes(e.error))shouldListen=false};recognition.onend=()=>{if(!shouldListen)return;try{recognition.start();status('Listening…')}catch(e){shouldListen=false;status('Recognition stopped: '+e.message)}};try{recognition.start();status('Listening…')}catch(e){shouldListen=false;status('Could not start recognition: '+e.message)}}
-function stop(){++startToken;shouldListen=false;active=false;const rec=recognition;recognition=null;if(rec){rec.onend=null;try{rec.stop()}catch(e){}}if(frame!==null)cancelAnimationFrame(frame);frame=null;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;if(ctx)ctx.close().catch(()=>{});ctx=null;analyser=null;$('fill').style.height='0%';$('meter').setAttribute('aria-valuenow',0);$('level').textContent='0 / 100';$('mic').textContent='🎙️';$('quality').textContent='Microphone stopped';$('start').disabled=false;$('stop').disabled=true;$('interim').textContent='';status('Stopped')}
-$('start').onclick=start;$('stop').onclick=stop;
-const key='analyticah-transcription-only-v1';
-function saveDraft(){try{localStorage.setItem(key,JSON.stringify({transcript:$('transcript').value,lang:$('lang').value,audiotype:$('audiotype').value}));$('saved').textContent='Draft saved locally at '+new Date().toLocaleTimeString()}catch(e){$('saved').textContent='Local saving unavailable: '+e.message}}
-function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveDraft,500)}
-try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved){$('transcript').value=saved.transcript||'';if(saved.lang)$('lang').value=saved.lang;if(saved.audiotype)$('audiotype').value=saved.audiotype}}catch(e){}
-for(const id of ['transcript','lang','audiotype']){$(id).addEventListener('input',scheduleSave);$(id).addEventListener('change',scheduleSave)}
-$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('transcript').value);status('Transcript copied')}catch(e){$('transcript').select();document.execCommand('copy');status('Copy attempted')}};
-$('save').onclick=()=>{const blob=new Blob([$('transcript').value],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='transcript-'+new Date().toISOString().slice(0,10)+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
-$('clear').onclick=()=>{if(!confirm('Clear transcript?'))return;$('transcript').value='';$('interim').textContent='';saveDraft()};
-window.addEventListener('pagehide',()=>{stop()});
+const $ = id => document.getElementById(id);
+const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+const key = 'analyticah-transcription-only-v1';
+let currentSession = null;
+let sessionNumber = 0;
+let saveTimer = null;
+
+function status(message) {
+  $('status').textContent = message;
+}
+
+function showHelp(message = '') {
+  $('microphone-help').textContent = message;
+  $('microphone-help').hidden = !message;
+}
+
+function microphoneAvailability() {
+  if (window.isSecureContext === false) {
+    return 'Microphone access requires HTTPS. Open this app using https://, or use localhost for local testing.';
+  }
+  if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+    return 'Microphone access is unavailable in this browser. Open the app directly in a current Chrome or Edge browser, rather than a site-builder preview or an in-app browser.';
+  }
+  const policy = document.permissionsPolicy || document.featurePolicy;
+  if (policy && typeof policy.allowsFeature === 'function' && !policy.allowsFeature('microphone')) {
+    return 'This page is not allowed to use the microphone. Open the app directly in a new tab. An embedded app needs microphone permission from its hosting page.';
+  }
+  return '';
+}
+
+function microphoneError(error) {
+  switch (error.name) {
+    case 'NotAllowedError':
+    case 'PermissionDeniedError':
+    case 'SecurityError':
+      return 'Microphone permission was blocked. Allow microphone access in this site’s browser settings and your device settings, then try again. If this is a preview or embedded page, open the app directly over HTTPS.';
+    case 'NotFoundError':
+    case 'DevicesNotFoundError':
+      return 'No microphone was found. Connect or enable a microphone, then try again.';
+    case 'NotReadableError':
+    case 'TrackStartError':
+      return 'The microphone could not be opened. Check your device settings and close other apps that may be using it, then try again.';
+    case 'AbortError':
+      return 'Microphone startup was interrupted. Try starting again.';
+    default:
+      return 'The microphone could not start. Check that this page uses HTTPS and that your browser and device allow microphone access, then try again.';
+  }
+}
+
+function setRunning(running) {
+  $('start').disabled = running;
+  $('stop').disabled = !running;
+  $('lang').disabled = running;
+}
+
+function resetMeter() {
+  $('fill').style.height = '0%';
+  $('meter').setAttribute('aria-valuenow', 0);
+  $('level').textContent = '0 / 100';
+  $('mic').textContent = '🎙️';
+  $('quality').textContent = 'Microphone stopped';
+}
+
+function releaseAudio(session) {
+  if (session.frame !== null) cancelAnimationFrame(session.frame);
+  session.frame = null;
+  if (session.stream) {
+    session.stream.getTracks().forEach(track => {
+      track.onended = null;
+      track.stop();
+    });
+    session.stream = null;
+  }
+  if (session.context) {
+    // Always close this session's context, never a newer session's context.
+    const context = session.context;
+    session.context = null;
+    try { Promise.resolve(context.close()).catch(() => {}); } catch (error) {}
+  }
+}
+
+function detachRecognition(recognition) {
+  recognition.onstart = null;
+  recognition.onresult = null;
+  recognition.onerror = null;
+  recognition.onend = null;
+}
+
+function finishSession(session, message, keepFinalResult = false) {
+  if (currentSession !== session) return;
+  currentSession = null;
+  clearTimeout(session.restartTimer);
+  const recognition = session.recognition;
+  if (recognition) {
+    if (keepFinalResult) {
+      // stop() can produce a final result. Accept it only until another session
+      // starts or the transcript is cleared, and never keep listening.
+      session.acceptFinalResult = true;
+      recognition.onstart = null;
+      recognition.onerror = null;
+      const cleanupTimer = setTimeout(() => detachRecognition(recognition), 2000);
+      recognition.onend = () => {
+        clearTimeout(cleanupTimer);
+        detachRecognition(recognition);
+      };
+      try { recognition.stop(); } catch (error) { detachRecognition(recognition); }
+    } else {
+      detachRecognition(recognition);
+      try { recognition.abort(); } catch (error) {}
+    }
+  }
+  releaseAudio(session);
+  resetMeter();
+  setRunning(false);
+  $('interim').textContent = '';
+  saveDraft();
+  status(message);
+}
+
+function updateMeter(session) {
+  if (currentSession !== session || !session.analyser) return;
+  const data = session.samples;
+  session.analyser.getByteTimeDomainData(data);
+  let sum = 0;
+  for (const value of data) {
+    const normalized = (value - 128) / 128;
+    sum += normalized * normalized;
+  }
+  const rms = Math.sqrt(sum / data.length);
+  const db = rms > 0 ? 20 * Math.log10(rms) : -100;
+  const level = Math.max(0, Math.min(100, Math.round((db + 65) * 2)));
+  $('fill').style.height = level + '%';
+  $('fill').style.background = level > 88 ? '#f16c69' : level > 70 ? '#e8b34f' : '#36c68b';
+  $('meter').setAttribute('aria-valuenow', level);
+  $('level').textContent = level + ' / 100';
+  $('quality').textContent = level < 5 ? 'Very quiet / no signal' : level < 20 ? 'Low microphone input' : level < 75 ? 'Microphone receiving sound' : 'Strong input — check for distortion';
+  session.frame = requestAnimationFrame(() => updateMeter(session));
+}
+
+function startRecognition(session) {
+  const recognition = new Speech();
+  session.recognition = recognition;
+  recognition.lang = $('lang').value;
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onstart = () => {
+    if (currentSession === session) status('Listening…');
+  };
+  recognition.onresult = event => {
+    const live = currentSession === session;
+    if (!live && !(session.acceptFinalResult && session.number === sessionNumber)) return;
+    let final = '';
+    let partial = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      if (result.isFinal) final += result[0].transcript.trim() + ' ';
+      else partial += result[0].transcript;
+    }
+    if (final) {
+      const area = $('transcript');
+      area.value += (area.value && !/\s$/.test(area.value) ? ' ' : '') + final;
+      area.scrollTop = area.scrollHeight;
+      // Final speech must survive a tab close before a debounce timer runs.
+      saveDraft();
+    }
+    if (live) {
+      session.networkErrors = 0;
+      session.restartDelay = 500;
+      $('interim').textContent = partial;
+    }
+  };
+  recognition.onerror = event => {
+    if (currentSession !== session) return;
+    if (event.error === 'no-speech') {
+      status('No speech detected. Waiting for speech…');
+      return;
+    }
+    if (event.error === 'network' && ++session.networkErrors <= 3) {
+      session.restartDelay = 1000 * session.networkErrors;
+      status('Speech service connection interrupted. Retrying…');
+      return;
+    }
+    const messages = {
+      'not-allowed': 'Speech recognition permission was blocked. Allow microphone access in your browser and device settings, then try again.',
+      'service-not-allowed': 'Speech recognition is disabled by this browser or its settings. Try a current Chrome or Edge browser.',
+      'language-not-supported': 'This speech service does not support the selected language. Choose another language and try again.',
+      'audio-capture': 'Speech recognition lost microphone access. Check your microphone and try again.',
+      'network': 'The speech service could not reconnect. Check your internet connection, then start again.',
+      'aborted': 'Speech recognition was interrupted. Start again when ready.'
+    };
+    const message = messages[event.error] || 'Speech recognition stopped unexpectedly. Try starting again.';
+    finishSession(session, message);
+    showHelp(message);
+  };
+  recognition.onend = () => {
+    if (currentSession !== session) return;
+    $('interim').textContent = '';
+    clearTimeout(session.restartTimer);
+    // Some browsers end continuous recognition periodically. Delay the restart
+    // instead of immediately looping when a service is unavailable.
+    session.restartTimer = setTimeout(() => {
+      if (currentSession !== session) return;
+      try {
+        status('Reconnecting speech recognition…');
+        recognition.start();
+      } catch (error) {
+        finishSession(session, 'Speech recognition could not restart. Try starting again.');
+      }
+    }, session.restartDelay);
+  };
+  status('Starting speech recognition…');
+  recognition.start();
+}
+
+async function start() {
+  if (currentSession) return;
+  const unavailable = microphoneAvailability();
+  if (unavailable) {
+    status('Microphone unavailable');
+    showHelp(unavailable);
+    return;
+  }
+  showHelp();
+  const session = {
+    number: ++sessionNumber, stream: null, context: null, analyser: null,
+    frame: null, recognition: null, restartTimer: null,
+    restartDelay: 500, networkErrors: 0, acceptFinalResult: false
+  };
+  currentSession = session;
+  setRunning(true);
+  status('Requesting microphone…');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (currentSession !== session) {
+      stream.getTracks().forEach(track => track.stop());
+      return;
+    }
+    session.stream = stream;
+    stream.getTracks().forEach(track => {
+      track.onended = () => finishSession(session, 'Microphone disconnected. Reconnect it and start again.');
+    });
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) throw new Error('Meter unavailable');
+      const context = new Audio();
+      session.context = context;
+      await context.resume();
+      if (currentSession !== session) return;
+      session.analyser = context.createAnalyser();
+      session.analyser.fftSize = 2048;
+      session.samples = new Uint8Array(session.analyser.fftSize);
+      context.createMediaStreamSource(stream).connect(session.analyser);
+      updateMeter(session);
+    } catch (error) {
+      if (currentSession !== session) return;
+      // Metering is optional. A Web Audio failure must not prevent recognition.
+      if (session.frame !== null) cancelAnimationFrame(session.frame);
+      session.frame = null;
+      session.analyser = null;
+      const context = session.context;
+      session.context = null;
+      if (context) {
+        try { Promise.resolve(context.close()).catch(() => {}); } catch (closeError) {}
+      }
+      $('quality').textContent = 'Microphone connected; level meter unavailable in this browser';
+    }
+    $('mic').textContent = '🎤';
+  } catch (error) {
+    if (currentSession !== session) return;
+    const message = microphoneError(error);
+    finishSession(session, 'Microphone could not start');
+    showHelp(message);
+    return;
+  }
+  if (!Speech) {
+    finishSession(session, 'Speech recognition is unsupported in this browser.');
+    showHelp('Try a current Chrome or Edge browser. You can still edit, copy, and save your transcript here.');
+    return;
+  }
+  try {
+    startRecognition(session);
+  } catch (error) {
+    finishSession(session, 'Speech recognition could not start. Try a current Chrome or Edge browser, then start again.');
+  }
+}
+
+function stop() {
+  if (currentSession) finishSession(currentSession, 'Stopped', true);
+}
+$('start').onclick = start;
+$('stop').onclick = stop;
+
+function saveDraft() {
+  clearTimeout(saveTimer);
+  try {
+    localStorage.setItem(key, JSON.stringify({ transcript: $('transcript').value, lang: $('lang').value, audiotype: $('audiotype').value }));
+    $('saved').textContent = 'Draft saved locally at ' + new Date().toLocaleTimeString();
+  } catch (error) {
+    $('saved').textContent = 'Local saving unavailable. Use Save .txt to keep a copy.';
+  }
+}
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDraft, 500);
+}
+try {
+  const saved = JSON.parse(localStorage.getItem(key) || 'null');
+  if (saved && typeof saved === 'object') {
+    if (typeof saved.transcript === 'string') $('transcript').value = saved.transcript;
+    if (['en-ZA', 'en-US', 'en-GB', 'af-ZA'].includes(saved.lang)) $('lang').value = saved.lang;
+    if (['speech', 'song', 'instrumental'].includes(saved.audiotype)) $('audiotype').value = saved.audiotype;
+  }
+} catch (error) {
+  $('saved').textContent = 'The local draft could not be restored. Use Save .txt to keep a copy of new work.';
+}
+for (const id of ['transcript', 'lang', 'audiotype']) {
+  $(id).addEventListener('input', scheduleSave);
+  $(id).addEventListener('change', scheduleSave);
+}
+$('copy').onclick = async () => {
+  try {
+    await navigator.clipboard.writeText($('transcript').value);
+    status('Transcript copied');
+  } catch (error) {
+    $('transcript').select();
+    let copied = false;
+    try { copied = document.execCommand('copy'); } catch (error) {}
+    status(copied ? 'Transcript copied' : 'Copy unavailable. Select the transcript and copy it manually.');
+  }
+};
+$('save').onclick = () => {
+  saveDraft();
+  const blob = new Blob([$('transcript').value], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'transcript-' + new Date().toISOString().slice(0, 10) + '.txt';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
+$('clear').onclick = () => {
+  if (!confirm('Clear transcript?')) return;
+  if (!currentSession) ++sessionNumber;
+  $('transcript').value = '';
+  $('interim').textContent = '';
+  saveDraft();
+};
+window.addEventListener('pagehide', () => {
+  if (currentSession) finishSession(currentSession, 'Stopped');
+  saveDraft();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveDraft();
+});
+const initialIssue = microphoneAvailability();
+if (initialIssue) {
+  status('Microphone unavailable');
+  showHelp(initialIssue);
+}
 </script></body></html>
