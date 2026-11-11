@@ -1,55 +1,75 @@
 # AnalyticaH Transcription
 
-Browser-based live transcription and meeting-minutes drafting application.
+A self-contained, browser-based live transcription app. The current interface is deliberately transcription-only.
 
-**Production domain:** https://transcribe.analyticah.co.za  
-**Repository:** https://github.com/cdfisher8/analyticah-transcription  
-**Entry point:** `index.html` (static site)  
-**Default branch:** `main`
+- **Production hostname:** `transcribe.analyticah.co.za` (use HTTPS for microphone access)
+- **Repository:** https://github.com/cdfisher8/analyticah-transcription
+- **Entry point:** `index.html` (no build step or runtime dependencies)
+- **Default branch:** `main`
+
+**Deployment:** GitHub Pages publishes `main` at `transcribe.analyticah.co.za`, which matches the existing `CNAME`. Preserve this hostname and its DNS. The different name `transcriptions.analyticah.co.za` is not this app’s deployment. Verify the HTTPS certificate and redirect before relying on live microphone access.
 
 ## Current features
-- Live microphone level meter and speech-to-text via the browser SpeechRecognition API
+
+- Live microphone level meter and browser speech recognition
 - English (South Africa, US, UK) and Afrikaans language selection
-- Editable original and improved transcripts
-- Rule-based cleanup and paragraph formatting
-- Transcript search
-- Draft meeting minutes, possible decisions, and possible action items
-- Local browser autosave and manual restore
-- Export as plain text, Word-compatible HTML .doc, or browser Print to PDF
+- Editable transcript, clipboard copy, and plain-text download
+- Local browser autosave and automatic restore
+- Clear explanations for unavailable microphone APIs, insecure pages, blocked permissions, missing devices, and speech-service errors
+- Safe cancellation during microphone startup and delayed recognition recovery
 
-## Important limitations
-- SpeechRecognition availability and behavior vary by browser. Some implementations send audio to a browser-vendor online speech service; do not promise offline transcription or confidentiality from third-party processing.
-- The microphone meter only confirms audio input, not successful speech recognition.
-- Meeting minutes and action items are **rule-based drafts**, not AI summaries. Review owners, deadlines, and decisions before sharing.
-- LocalStorage is tied to the browser and device. It is not a cloud backup, and clearing browser data may delete drafts.
-- Word export is an HTML-based .doc file, not native .docx. PDF export uses the browser print dialog.
-- No server-side authentication, Google Drive sync, or uploaded-file transcription is implemented in this static build.
+Audio type is a manual label. Song lyrics may be recognized, but the app does not detect music or change recognition models based on this selection. There is no uploaded-file transcription, meeting-minutes generation, AI cleanup, Word/PDF export, authentication, or Google Drive sync in the current interface.
 
-## Local testing
-Serve this folder over localhost, for example:
+## Microphone troubleshooting
+
+1. Open the app **directly over HTTPS**, not plain HTTP or a site-builder preview. `getUserMedia` is normally unavailable in insecure contexts. `http://localhost` is allowed for local development; a plain-HTTP LAN IP is not equivalent to localhost.
+2. Use a recent Chrome or Edge browser. In-app browsers and other browsers may not support the required speech service.
+3. Allow microphone access for the exact site in browser and operating-system settings. Connect or enable a microphone if none is detected.
+4. If the app is embedded, both the outer page and app must use HTTPS. The host must permit microphone use through its iframe `allow="microphone"` setting and any applicable Permissions-Policy. Opening the app directly is the simplest way to distinguish hosting restrictions from an app issue.
+5. Verify microphone input and speech recognition separately. A moving level meter does not prove that the browser's online speech service is working.
+
+The code now explains these conditions instead of showing `Cannot read properties of undefined (reading 'getUserMedia')`. It cannot install a TLS certificate, grant browser permission, or override a hosting page's permission policy.
+
+## Local development and tests
+
+Serve this directory:
+
 ```sh
 python -m http.server 8000
 ```
-Then open http://localhost:8000 in a recent Chrome or Edge browser. Allow microphone access and verify recognition and meter behavior separately.
+
+Open `http://localhost:8000` in a recent Chrome or Edge browser.
+
+Run the dependency-free regression suite with Node.js 20 or newer:
+
+```sh
+npm test
+```
+
+The tests execute the actual inline application script with simulated browser APIs. They cover unavailable microphone APIs, insecure/blocked contexts, permission and device errors, repeated clicks, cancellation races, optional meter failures, recognition failures/retries, transcript preservation, autosave, and clipboard fallback. No package installation is needed.
+
+### Manual browser checks before publishing
+
+- Start, allow the microphone, speak, and verify that final words appear. Check the meter separately.
+- Stop and start repeatedly, including while permission is pending. Confirm only the current session changes the UI and that stopped sessions release the microphone.
+- Deny permission, disconnect the microphone, and interrupt the speech-service connection. Confirm the guidance and that Start becomes available again.
+- Confirm English and Afrikaans availability with the browser's actual speech service.
+- Edit a transcript, immediately reload or close the tab, and confirm it restores. Test Copy, Save .txt, and both Cancel and Confirm in Clear transcript.
+- Test desktop and Android layouts and the actual HTTPS production origin. Test an embedded page separately if embedding is intended.
+
+## Privacy and limitations
+
+- Browser speech recognition may send audio to a browser-vendor online service. It is not guaranteed offline or confidential from third-party processing.
+- The app does not record or retain an audio file. A failed recognition service cannot recover missed audio later.
+- LocalStorage is tied to the exact origin, browser, and device. Changing the domain or switching from HTTP to HTTPS does not migrate drafts. **Export important transcripts before changing addresses or clearing browser data.**
+- Only finalized speech is persisted. A brief final-result window after Stop is supported, but browser/service behavior can vary.
+- Autosave is not a cloud backup. Storage failures show a reminder to download a text copy.
+- Recognition retries are bounded for repeated network errors. The microphone stops when a fatal error occurs or the page closes.
 
 ## Publishing
-The `CNAME` file specifies `transcribe.analyticah.co.za`. To publish using GitHub Pages:
-1. In repository Settings > Pages, select **Deploy from a branch**, branch `main`, folder `/ (root)`, and Save.
-2. Configure the DNS record for `transcribe` at the domain's DNS provider to point to `cdfisher8.github.io` (CNAME).
-3. In GitHub Pages settings, verify the custom domain and enable **Enforce HTTPS** once the certificate is ready.
-4. Test the production URL on desktop and Android, including microphone permission, transcription, stopping, autosave/restore, and exports.
 
-A `CNAME` file alone does not prove that Pages, DNS, or HTTPS is active.
+Keep changes on a feature branch for review before merging. The existing GitHub Pages workflow publishes `main`, so merging into `main` is a production deployment. Monitor that exact commit’s Pages build and deployment.
 
-## Production checklist
-- [ ] Verify GitHub Pages publishing source and latest deployment
-- [ ] Verify DNS and HTTPS for the custom domain
-- [ ] Test live recognition and recovery after recognition interruptions
-- [ ] Test mobile responsiveness and browser support
-- [ ] Add safe backup/export before relying on long meetings
-- [ ] Review privacy notice and microphone processing disclosures
-- [ ] Design optional authenticated Google Drive storage with user authorization
-- [ ] Add automated smoke tests and deployment checks
+The intended domain is `transcribe.analyticah.co.za`, whose DNS already points to `cdfisher8.github.io`. In repository Settings > Pages, verify the custom domain, certificate status, and Enforce HTTPS setting before changing configuration. No DNS migration is needed to publish code updates. After publication, check that the live HTML matches the deployed commit and repeat the manual browser checks above.
 
-## Development guidance
-Keep changes on feature branches and use pull requests to review them before merging into `main`. Never commit API keys, OAuth client secrets, recordings, or private transcripts. Any future AI transcription or cloud storage requires an appropriate backend and user consent.
+Never commit API keys, OAuth client secrets, recordings, or private transcripts. Future AI transcription or cloud storage requires a suitable backend and user consent.
