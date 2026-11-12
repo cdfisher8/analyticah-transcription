@@ -11,10 +11,10 @@
 </style></head><body>
 <aside class="sidebar" aria-label="Microphone sound level"><div class="mic" id="mic">🎙️</div><div class="title">MIC LEVEL</div><div class="vertical-meter" id="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill" id="fill"></div></div><div id="level">0 / 100</div><label for="gain" class="title">BOOST</label><input id="gain" aria-label="Microphone boost level" type="range" min="100" max="400" step="25" value="200" style="width:57px"><output id="gainvalue">200%</output></aside>
 <main><div class="page-heading"><h1>🎙 Transcription</h1></div>
-<section class="panel"><div class="controls"><label for="lang">Transcription language</label><select id="lang"><option value="auto">Automatic (browser default)</option><option value="af-ZA">Afrikaans</option><option value="ar-SA">Arabic</option><option value="bn-BD">Bengali</option><option value="zh-CN">Chinese (Mandarin, Simplified)</option><option value="zh-TW">Chinese (Traditional)</option><option value="nl-NL">Dutch</option><option value="en-ZA" selected>English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="fr-FR">French</option><option value="de-DE">German</option><option value="hi-IN">Hindi</option><option value="id-ID">Indonesian</option><option value="it-IT">Italian</option><option value="ja-JP">Japanese</option><option value="ko-KR">Korean</option><option value="pt-BR">Portuguese (Brazil)</option><option value="pt-PT">Portuguese (Portugal)</option><option value="ru-RU">Russian</option><option value="es-ES">Spanish</option><option value="sw-KE">Swahili</option><option value="ta-IN">Tamil</option><option value="tr-TR">Turkish</option><option value="uk-UA">Ukrainian</option><option value="ur-PK">Urdu</option><option value="vi-VN">Vietnamese</option><option value="zu-ZA">Zulu</option><option value="xh-ZA">Xhosa</option></select><span class="translate-controls"><label><input type="checkbox" id="translateToggle"> Translate</label><label for="translateTo">Translate to</label><select id="translateTo"><option value="en">English</option><option value="af">Afrikaans</option><option value="zu">isiZulu</option><option value="xh">isiXhosa</option><option value="nso">Sepedi</option><option value="st">Sesotho</option><option value="tn">Setswana</option><option value="ss">siSwati</option><option value="nr">isiNdebele</option><option value="ve">Tshivenda</option><option value="ts">itsonga</option><option value="fr">French</option><option value="es">Spanish</option><option value="de">German</option><option value="pt">Portuguese</option><option value="ar">Arabic</option><option value="zh">Chinese</option><option value="hi">Hindi</option></select></span></div><p id="translateNote" class="hint" style="margin:5px 0">Translation requires a translation service; not connected yet.</p><div class="controls" style="margin-top:8px"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p style="margin:6px 0">Status: <span id="status" role="status">Ready</span> · <span id="quality" class="muted">Microphone not started</span></p></section>
+<section class="panel"><div class="controls"><label for="lang">Transcription language</label><select id="lang"><option value="auto">Automatic (browser default)</option><option value="af-ZA">Afrikaans</option><option value="ar-SA">Arabic</option><option value="bn-BD">Bengali</option><option value="zh-CN">Chinese (Mandarin, Simplified)</option><option value="zh-TW">Chinese (Traditional)</option><option value="nl-NL">Dutch</option><option value="en-ZA" selected>English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="fr-FR">French</option><option value="de-DE">German</option><option value="hi-IN">Hindi</option><option value="id-ID">Indonesian</option><option value="it-IT">Italian</option><option value="ja-JP">Japanese</option><option value="ko-KR">Korean</option><option value="pt-BR">Portuguese (Brazil)</option><option value="pt-PT">Portuguese (Portugal)</option><option value="ru-RU">Russian</option><option value="es-ES">Spanish</option><option value="sw-KE">Swahili</option><option value="ta-IN">Tamil</option><option value="tr-TR">Turkish</option><option value="uk-UA">Ukrainian</option><option value="ur-PK">Urdu</option><option value="vi-VN">Vietnamese</option><option value="zu-ZA">Zulu</option><option value="xh-ZA">Xhosa</option></select><span class="translate-controls"><label><input type="checkbox" id="translateToggle"> Translate</label><label for="translateTo">Translate to</label><select id="translateTo"><option value="en">English</option><option value="af">Afrikaans</option><option value="zu">isiZulu</option><option value="xh">isiXhosa</option><option value="nso">Sepedi</option><option value="st">Sesotho</option><option value="tn">Setswana</option><option value="ss">siSwati</option><option value="nr">isiNdebele</option><option value="ve">Tshivenda</option><option value="ts">itsonga</option><option value="fr">French</option><option value="es">Spanish</option><option value="de">German</option><option value="pt">Portuguese</option><option value="ar">Arabic</option><option value="zh">Chinese</option><option value="hi">Hindi</option></select></span></div><p id="translateNote" class="hint" style="margin:5px 0">Free browser translation is attempted when supported. Some languages require an external engine.</p><div class="controls" style="margin-top:8px"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p style="margin:6px 0">Status: <span id="status" role="status">Ready</span> · <span id="quality" class="muted">Microphone not started</span></p></section>
 
 <section class="panel"><div class="transcript-heading"><h2 style="margin:0">Transcript</h2><span id="interim" aria-live="polite" title="Latest recognised words">Waiting for speech…</span></div><textarea id="transcript" aria-label="Transcript" placeholder="Recognised words appear here. You can edit the text."></textarea><div class="controls"><button id="copy">Copy transcript</button><button id="save">Save .txt</button><button id="clear">Clear transcript</button></div><p class="hint" id="saved">Drafts are automatically saved in this browser only.</p></section>
-<section class="panel" id="translationPanel"><h2 style="margin:0 0 8px">Translation</h2><textarea id="translationText" aria-label="Translation" readonly placeholder="Translated text will appear here when a translation service is connected."></textarea><p class="hint" id="translationStatus">Translation requires a configured server endpoint. English, Afrikaans and isiZulu are planned targets.</p></section>
+<section class="panel" id="translationPanel"><h2 style="margin:0 0 8px">Translation</h2><textarea id="translationText" aria-label="Translation" readonly placeholder="Translated text will appear here when a translation service is connected."></textarea><p class="hint" id="translationStatus">Choose English, Afrikaans or isiZulu, then turn on Translate. Browser support varies.</p></section>
 <p class="hint">Use a recent Chrome or Edge browser and allow microphone access. Speech recognition may use an online service. Check all transcription results, especially quiet speech.</p></main>
 <script>
 const $=id=>document.getElementById(id);
@@ -25,23 +25,50 @@ function updateMeter(){if(!analyser)return;const data=new Uint8Array(analyser.ff
 async function start(){if(active)return;const token=++startToken;active=true;shouldListen=true;$('start').disabled=true;$('stop').disabled=false;status('Requesting microphone…');try{const newStream=await navigator.mediaDevices.getUserMedia({audio:{autoGainControl:true,noiseSuppression:true,echoCancellation:true}});if(token!==startToken){newStream.getTracks().forEach(t=>t.stop());return}stream=newStream;ctx=new (window.AudioContext||window.webkitAudioContext)();await ctx.resume();if(token!==startToken){stop();return}analyser=ctx.createAnalyser();analyser.fftSize=2048;gainNode=ctx.createGain();gainNode.gain.value=Number($('gain').value)/100;ctx.createMediaStreamSource(stream).connect(gainNode).connect(analyser);$('mic').textContent='🎤';updateMeter()}catch(e){stop();status('Microphone error: '+e.message);return}if(!Speech){status('Microphone active; speech recognition is unsupported here. Try Chrome or Edge.');return}recognition=new Speech();recognition.lang=$('lang').value==='auto'?(navigator.language||'en-ZA'):$('lang').value;recognition.continuous=true;recognition.interimResults=true;recognition.onresult=e=>{let final='',partial='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)final+=t.trim()+' ';else partial+=t}if(final){$('interim').textContent=final.trim();const area=$('transcript');area.value+=(area.value&&!/\s$/.test(area.value)?' ':'')+final;area.scrollTop=area.scrollHeight;scheduleSave();scheduleTranslation()}if(partial)$('interim').textContent=partial};recognition.onerror=e=>{status('Recognition issue: '+e.error);if(['not-allowed','service-not-allowed','language-not-supported','audio-capture'].includes(e.error))shouldListen=false};recognition.onend=()=>{if(!shouldListen)return;try{recognition.start();status('Listening…')}catch(e){shouldListen=false;status('Recognition stopped: '+e.message)}};try{recognition.start();status('Listening…')}catch(e){shouldListen=false;status('Could not start recognition: '+e.message)}}
 function stop(){++startToken;shouldListen=false;active=false;const rec=recognition;recognition=null;if(rec){rec.onend=null;try{rec.stop()}catch(e){}}if(frame!==null)cancelAnimationFrame(frame);frame=null;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;if(ctx)ctx.close().catch(()=>{});ctx=null;analyser=null;gainNode=null;$('fill').style.height='0%';$('meter').setAttribute('aria-valuenow',0);$('level').textContent='0 / 100';$('mic').textContent='🎙️';$('quality').textContent='Microphone stopped';$('start').disabled=false;$('stop').disabled=true;$('interim').textContent='Waiting for speech…';status('Stopped')}
 $('start').onclick=start;$('stop').onclick=stop;
-const TRANSLATE_ENDPOINT=''; // Set to deployed translation Worker URL (HTTPS) after provisioninglet translationTimer=null,translationVersion=0;
+const TRANSLATE_ENDPOINT='';
+let translationTimer=null,translationVersion=0;
+let browserTranslator=null,browserTranslatorPair='';
+const translationLanguages=new Set(['en','af','zu']);
+async function localTranslate(text,source,target){
+ const TranslatorAPI=window.Translator;
+ if(!TranslatorAPI||typeof TranslatorAPI.create!=='function')throw new Error('Free browser translation is not supported in this Chrome version');
+ if(source==='auto')throw new Error('Select the spoken language to use browser translation');
+ const pair=source+'>'+target;
+ if(browserTranslatorPair!==pair){
+  browserTranslator=null;browserTranslatorPair='';
+  if(typeof TranslatorAPI.availability==='function'){
+   const availability=await TranslatorAPI.availability({sourceLanguage:source,targetLanguage:target});
+   if(availability==='unavailable')throw new Error('This language pair is unavailable in the browser');
+  }
+  browserTranslator=await TranslatorAPI.create({sourceLanguage:source,targetLanguage:target});
+  browserTranslatorPair=pair;
+ }
+ return await browserTranslator.translate(text);
+}
 async function translateTranscript(){
  const version=++translationVersion;
- if(!TRANSLATE_ENDPOINT){$('translationStatus').textContent='Translation server not deployed yet.';return}
  if(!$('translateToggle').checked){$('translationText').value='';$('translationStatus').textContent='Translation is off.';return}
  const original=$('transcript').value.trim();if(!original){$('translationText').value='';$('translationStatus').textContent='Waiting for transcript…';return}
  $('translationStatus').textContent='Requesting translation…';
  try{
-  const response=await fetch(TRANSLATE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:original,source:'auto',target:$('translateTo').value})});
-  if(!response.ok)throw new Error(response.status===404?'Translation server not configured':'Translation service unavailable ('+response.status+')');
-  const data=await response.json();if(version!==translationVersion)return;
-  if(typeof data.translation!=='string')throw new Error('Invalid translation response');
-  $('translationText').value=data.translation;$('translationStatus').textContent='Translation updated.';
+  const target=$('translateTo').value;
+  const sourceChoice=$('lang').value;
+  const source=sourceChoice==='auto'?'auto':sourceChoice.split('-')[0];
+  if(!translationLanguages.has(target)||(!translationLanguages.has(source)&&source!=='auto'))throw new Error('Free translation currently supports English, Afrikaans and isiZulu only');
+  let translated;
+  if(source===target){translated=original;}
+  else if(TRANSLATE_ENDPOINT){
+   const response=await fetch(TRANSLATE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:original,source,target})});
+   if(!response.ok)throw new Error('Translation server unavailable ('+response.status+')');
+   const data=await response.json();translated=data.translation;
+  }else{translated=await localTranslate(original,source,target)}
+  if(version!==translationVersion)return;
+  if(typeof translated!=='string')throw new Error('Invalid translation response');
+  $('translationText').value=translated;$('translationStatus').textContent='Translation updated.';
  }catch(e){if(version!==translationVersion)return;$('translationStatus').textContent=e.message+' — original transcript preserved.'}
 }
-function scheduleTranslation(){clearTimeout(translationTimer);translationTimer=setTimeout(translateTranscript,1200)}
-$('translateToggle').onchange=scheduleTranslation;$('translateTo').onchange=scheduleTranslation;
+function scheduleTranslation(){clearTimeout(translationTimer);translationTimer=setTimeout(translateTranscript,1500)}
+$('translateToggle').onchange=scheduleTranslation;$('translateTo').onchange=scheduleTranslation;$('lang').addEventListener('change',scheduleTranslation);
 $('transcript').addEventListener('input',scheduleTranslation);
 $('gain').oninput=()=>{const v=Number($('gain').value);$('gainvalue').textContent=v+'%';if(gainNode)gainNode.gain.value=v/100;};
 
