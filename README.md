@@ -1,55 +1,57 @@
 # AnalyticaH Transcription
 
-Browser-based live transcription and meeting-minutes drafting application.
+Static live transcription app at `https://transcribe.analyticah.co.za`.
 
-**Production domain:** https://transcribe.analyticah.co.za  
-**Repository:** https://github.com/cdfisher8/analyticah-transcription  
-**Entry point:** `index.html` (static site)  
-**Default branch:** `main`
+## Features
+- Browser speech recognition, microphone level and boost controls, language selection.
+- Editable transcript with local draft saving and restore.
+- Manual Speaker 1, Speaker 2 and sequential additional speaker labels.
+- TXT download, valid Open XML Word (.docx) download, and browser Print / Save PDF.
 
-## Current features
-- Live microphone level meter and speech-to-text via the browser SpeechRecognition API
-- English (South Africa, US, UK) and Afrikaans language selection
-- Editable original and improved transcripts
-- Rule-based cleanup and paragraph formatting
-- Transcript search
-- Draft meeting minutes, possible decisions, and possible action items
-- Local browser autosave and manual restore
-- Export as plain text, Word-compatible HTML .doc, or browser Print to PDF
+## Manual speakers
+Open **Manual speakers** above the transcript. Place the cursor where a speaker
+starts, then tap a speaker button or select a speaker and choose **Insert at cursor**.
+A labelled paragraph is inserted without deleting selected text. **Add speaker** adds
+the next number. Speaker count is saved locally (maximum 999).
 
-## Important limitations
-- SpeechRecognition availability and behavior vary by browser. Some implementations send audio to a browser-vendor online speech service; do not promise offline transcription or confidentiality from third-party processing.
-- The microphone meter only confirms audio input, not successful speech recognition.
-- Meeting minutes and action items are **rule-based drafts**, not AI summaries. Review owners, deadlines, and decisions before sharing.
-- LocalStorage is tied to the browser and device. It is not a cloud backup, and clearing browser data may delete drafts.
-- Word export is an HTML-based .doc file, not native .docx. PDF export uses the browser print dialog.
-- No server-side authentication, Google Drive sync, or uploaded-file transcription is implemented in this static build.
+With the transcript focused, **Ctrl+1…Ctrl+9** inserts the matching existing speaker.
+Browsers/operating systems may reserve these keys for tab switching before the app
+receives them. Buttons remain the reliable keyboard/touch fallback.
 
-## Local testing
-Serve this folder over localhost, for example:
+Drag a speaker button onto the transcript as an alternative. **Insertion uses the
+preselected cursor, not physical drop coordinates.** Labels are manual, not automatic
+speaker identification. Edit a label directly in the transcript to change it.
+
+**Undo last label** only works before further edits alter the transcript, protecting
+new words. Insertion may reset native textarea undo history. Export important drafts.
+
+## Exports
+- **Save TXT:** plain UTF-8 transcript.
+- **Save Word (.docx):** local Open XML document with speaker labels and paragraphs;
+  not HTML renamed as a Word file. No external library or upload is needed.
+- **Print / Save PDF:** opens the browser print dialog with a clean transcript view.
+  Choose Save as PDF and confirm; the app does not claim a PDF was saved automatically.
+  Browser/mobile support varies. Cancelling the dialog leaves the transcript unchanged.
+
+## Development and checks
+Serve this directory over localhost (`python3 -m http.server 8000`). Run:
+
 ```sh
-python -m http.server 8000
+node --test tests/*.test.cjs
 ```
-Then open http://localhost:8000 in a recent Chrome or Edge browser. Allow microphone access and verify recognition and meter behavior separately.
 
-## Publishing
-The `CNAME` file specifies `transcribe.analyticah.co.za`. To publish using GitHub Pages:
-1. In repository Settings > Pages, select **Deploy from a branch**, branch `main`, folder `/ (root)`, and Save.
-2. Configure the DNS record for `transcribe` at the domain's DNS provider to point to `cdfisher8.github.io` (CNAME).
-3. In GitHub Pages settings, verify the custom domain and enable **Enforce HTTPS** once the certificate is ready.
-4. Test the production URL on desktop and Android, including microphone permission, transcription, stopping, autosave/restore, and exports.
+Tests use simulated UI events and validate document structure; they do not prove
+live microphone, browser shortcuts, physical drag, print dialogs or mobile behavior.
+Before release, check those flows in current Chrome/Edge and Android. Never use
+private recordings/transcripts for automated tests. No backend or account changes
+are included. Labels and exports work with the editable transcript.
 
-A `CNAME` file alone does not prove that Pages, DNS, or HTTPS is active.
+## Privacy and deployment
+Speech recognition may send audio to the browser vendor's online service. Meter
+movement alone does not prove recognition. Review output carefully. Drafts and
+speaker count live in this browser's local storage, not a cloud backup.
 
-## Production checklist
-- [ ] Verify GitHub Pages publishing source and latest deployment
-- [ ] Verify DNS and HTTPS for the custom domain
-- [ ] Test live recognition and recovery after recognition interruptions
-- [ ] Test mobile responsiveness and browser support
-- [ ] Add safe backup/export before relying on long meetings
-- [ ] Review privacy notice and microphone processing disclosures
-- [ ] Design optional authenticated Google Drive storage with user authorization
-- [ ] Add automated smoke tests and deployment checks
-
-## Development guidance
-Keep changes on feature branches and use pull requests to review them before merging into `main`. Never commit API keys, OAuth client secrets, recordings, or private transcripts. Any future AI transcription or cloud storage requires an appropriate backend and user consent.
+GitHub Pages publishes `main`; merging into it changes the live site. Keep work on
+feature branches for review and retain the prior commit for rollback. Preserve CNAME
+`transcribe.analyticah.co.za`. Verify the exact deployment and live output after release.
+Do not commit keys, passwords, recordings or personal transcripts.
