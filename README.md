@@ -59,6 +59,6 @@ Do not commit keys, passwords, recordings or personal transcripts.
 ## Unreleased time-session preview
 This feature branch adds a countdown, Auto-continue and manual Continue controls.
 It intentionally blocks listening until a real credit authority is integrated.
-See [SESSION-PREVIEW.md](SESSION-PREVIEW.md) for timing, R50/8-hour proposed pricing,
+See [SESSION-PREVIEW.md](SESSION-PREVIEW.md) for timing, R10/hour prepaid pricing and month-end expiry,
 backend requirements and explicit non-production limitations. Do not merge/deploy
 this preview over the current working site without that integration.

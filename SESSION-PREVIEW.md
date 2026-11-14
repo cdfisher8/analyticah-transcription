@@ -6,8 +6,9 @@ without opening the microphone. Do not deploy this branch over the working live
 site until the authenticated, server-authoritative credit system exists.
 
 ## Proposed product rule
-Curtis requested separate Transcribe time credits: **R50 buys 8 hours**, plus a
-separate **Unlimited plan at R300/month**. Unlimited entitlement semantics and
+Curtis requested separate Transcribe time credits: **R10 per hour**, purchased in
+**R10 increments** (R10 = 1 hour; R20 = 2 hours). **Unused prepaid time expires at
+month-end** and does not roll over. The separate **Unlimited plan is R300/month**. Unlimited entitlement semantics and
 backend limits are not wired into this time-limited session prototype.
 No payments, purchases, deductions, accounts or credit grants are implemented here.
 MSync credits are unrelated and must not be mixed into this balance.
