@@ -26,6 +26,7 @@
   }
   function printHtml(text){return '<!doctype html><html><head><meta charset="utf-8"><title>Transcript</title><style>@page{size:A4;margin:20mm}body{font:12pt/1.5 Arial,sans-serif;color:#111}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style></head><body><h1>Transcript</h1><pre>'+escapeXml(text)+'</pre></body></html>';}
   if(typeof module==='object'&&module.exports){module.exports={makeDocx,printHtml,crc32};return;}
+  root.TranscribeExports={makeDocx,printHtml};
   const doc=root.document, area=doc.getElementById('transcript'); if(!area)return;
   const say=text=>{doc.getElementById('status').textContent=text;};
   doc.getElementById('save-word').addEventListener('click',()=>{
