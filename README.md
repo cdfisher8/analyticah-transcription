@@ -55,3 +55,10 @@ GitHub Pages publishes `main`; merging into it changes the live site. Keep work 
 feature branches for review and retain the prior commit for rollback. Preserve CNAME
 `transcribe.analyticah.co.za`. Verify the exact deployment and live output after release.
 Do not commit keys, passwords, recordings or personal transcripts.
+
+## Unreleased time-session preview
+This feature branch adds a countdown, Auto-continue and manual Continue controls.
+It intentionally blocks listening until a real credit authority is integrated.
+See [SESSION-PREVIEW.md](SESSION-PREVIEW.md) for timing, R50/8-hour proposed pricing,
+backend requirements and explicit non-production limitations. Do not merge/deploy
+this preview over the current working site without that integration.
