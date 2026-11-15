@@ -6,17 +6,18 @@
 .transcript-heading{display:flex;align-items:center;gap:12px;margin-bottom:8px;min-width:0}.transcript-heading h2{flex:none}.transcript-heading #interim{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:#425c7b;font-style:italic;text-align:right}.transcript-heading #interim:empty{display:none}
 .page-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.page-heading h1{margin:0;font-size:1em}@media(max-width:600px){.page-heading h1{font-size:9.5px}}
 
-.editor-layout {display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:12px}
+.editor-layout {display:grid;grid-template-columns:minmax(0,154px) minmax(0,1fr);gap:8px}
 .editor-layout > .panel {min-width:0}
-.speakers {align-self:start;background:#e3efff}
-.speakers h2 {margin:0 0 10px;font-size:17px}
-.speakers .controls {align-items:stretch;flex-direction:column}
-.speakers label {font-size:13px}
-#speaker-list {display:grid;gap:8px;margin:12px 0}
+.speakers {align-self:start;background:#e3efff;padding:7px;font-size:13px}
+.speakers h2 {margin:0;font-size:14px}
+.speakers .controls {gap:4px}
+.speakers button {padding:4px 6px;border-radius:6px}
+#speaker-list {display:grid;gap:4px;margin:6px 0}
 .speaker-row {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px}
-.speaker-row input {width:100%;box-sizing:border-box;padding:8px 6px;border:1px solid #91b3d9;border-radius:7px;background:#fff;color:inherit;font:inherit}
-.speaker-row button {padding:8px 6px}
+.speaker-row input {width:100%;box-sizing:border-box;padding:4px 5px;border:1px solid #91b3d9;border-radius:6px;background:#fff;color:inherit;font:inherit}
+#speaker-status {margin:4px 0 0}
 #speaker-status:empty {display:none}
+#transcript {height:calc(100vh - 195px)}
 .speaker-drop {outline:3px solid #175bb6}
 button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible {outline:3px solid #175bb6;outline-offset:2px}
 @media(max-width:600px) {
@@ -24,11 +25,11 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   .sidebar {position:static;width:auto;flex-direction:row;justify-content:space-between;padding:6px;gap:4px;margin-bottom:8px}
   .sidebar .mic {font-size:20px}
   .vertical-meter {flex:none;width:12px;min-height:30px}
-  .editor-layout {grid-template-columns:minmax(0,40%) minmax(0,1fr);gap:6px}
+  .editor-layout {grid-template-columns:minmax(0,min(30%,154px)) minmax(0,1fr);gap:6px}
   .speaker-row {grid-template-columns:minmax(0,1fr)}
   .speaker-row input {font-size:16px}
   .speakers .controls button {padding-inline:4px}
-  textarea {padding:8px}
+  #transcript {height:64vh;padding:8px}
 }
 
 .recording-ribbon {display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:5px 8px;font-size:13px}
@@ -44,10 +45,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 <section class="panel recording-ribbon" aria-label="Transcription controls"><div class="language-control"><label for="lang">Transcription language</label><select id="lang"><option value="auto">Automatic (browser default)</option><option value="af-ZA">Afrikaans</option><option value="ar-SA">Arabic</option><option value="bn-BD">Bengali</option><option value="zh-CN">Chinese (Mandarin, Simplified)</option><option value="zh-TW">Chinese (Traditional)</option><option value="nl-NL">Dutch</option><option value="en-ZA" selected>English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="fr-FR">French</option><option value="de-DE">German</option><option value="hi-IN">Hindi</option><option value="id-ID">Indonesian</option><option value="it-IT">Italian</option><option value="ja-JP">Japanese</option><option value="ko-KR">Korean</option><option value="pt-BR">Portuguese (Brazil)</option><option value="pt-PT">Portuguese (Portugal)</option><option value="ru-RU">Russian</option><option value="es-ES">Spanish</option><option value="sw-KE">Swahili</option><option value="ta-IN">Tamil</option><option value="tr-TR">Turkish</option><option value="uk-UA">Ukrainian</option><option value="ur-PK">Urdu</option><option value="vi-VN">Vietnamese</option><option value="zu-ZA">Zulu</option><option value="xh-ZA">Xhosa</option></select></div><div class="controls"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p class="recording-status">Status: <span id="status" role="status">Ready</span> · <span id="quality" class="muted">Microphone not started</span></p></section>
 
 <div class="editor-layout"><aside class="panel speakers" aria-labelledby="speakers-title"><h2 id="speakers-title">Speakers</h2>
-<p class="hint" id="speaker-help">Edit a speaker name, then choose Insert to label the transcript at the cursor.</p>
-<div class="controls"><button id="speaker-add" type="button">Add speaker</button><label for="speaker-select">Speaker</label><select id="speaker-select"></select><button id="speaker-insert" type="button">Insert at cursor</button><button id="speaker-undo" type="button" disabled>Undo last label</button></div>
-<div id="speaker-list" class="controls" aria-label="Speaker buttons"></div><p id="speaker-status" class="hint" role="status" aria-live="polite"></p>
-</aside><section class="panel"><div class="transcript-heading"><h2 style="margin:0">Transcript</h2><span id="interim" aria-live="polite" title="Latest recognised words">Waiting for speech…</span></div><textarea id="transcript" aria-label="Transcript" aria-describedby="speaker-help" placeholder="Recognised words appear here. You can edit the text."></textarea><div class="controls"><button id="copy">Copy transcript</button><button id="save">Save TXT</button><button id="save-word">Save Word (.docx)</button><button id="save-pdf">Print / Save PDF</button><button id="clear">Clear transcript</button></div><p class="hint" id="saved">Drafts are automatically saved in this browser only.</p></section></div>
+<div id="speaker-list"></div>
+<div class="controls"><button id="speaker-add" type="button">Add speaker</button></div>
+<p id="speaker-status" class="hint" role="status" aria-live="polite"></p>
+</aside><section class="panel"><div class="transcript-heading"><h2 style="margin:0">Transcript</h2><span id="interim" aria-live="polite" title="Latest recognised words">Waiting for speech…</span></div><textarea id="transcript" aria-label="Transcript" placeholder="Recognised words appear here. You can edit the text."></textarea><div class="controls"><button id="copy">Copy transcript</button><button id="save">Save TXT</button><button id="save-word">Save Word (.docx)</button><button id="save-pdf">Print / Save PDF</button><button id="clear">Clear transcript</button></div><p class="hint" id="saved">Drafts are automatically saved in this browser only.</p></section></div>
 
 <p class="hint">Use a recent Chrome or Edge browser and allow microphone access. Speech recognition may use an online service. Check all transcription results, especially quiet speech.</p></main>
 <script>
@@ -70,4 +71,4 @@ $('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('transcrip
 $('save').onclick=()=>{const blob=new Blob([$('transcript').value],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='transcript-'+new Date().toISOString().slice(0,10)+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('clear').onclick=()=>{if(!confirm('Clear transcript?'))return;$('transcript').value='';$('interim').textContent='';saveDraft()};
 window.addEventListener('pagehide',()=>{saveDraft();stop()});
-</script><script src="speakers.js?v=2"></script><script src="exports.js"></script></body></html>
+</script><script src="speakers.js?v=3"></script><script src="exports.js"></script></body></html>

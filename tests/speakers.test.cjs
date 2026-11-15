@@ -26,21 +26,17 @@ function app({restore='2',storageFail=false}={}) {
     focus(){this.focused=true;}
     setSelectionRange(start,end){this.selectionStart=start;this.selectionEnd=end;}
   }
-  const ids=['transcript','speaker-list','speaker-select','speaker-status','speaker-add','speaker-insert','speaker-undo'];
+  const ids=['transcript','speaker-list','speaker-status','speaker-add'];
   const els=Object.fromEntries(ids.map(id=>[id,new Element()]));
   const storage=new Map([['analyticah-transcription-speakers-v1',restore]]);
   const window={document:{getElementById:id=>els[id],createElement:()=>new Element()},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>{if(storageFail)throw Error(); storage.set(k,v);}}};
   vm.runInNewContext(fs.readFileSync(require.resolve('../speakers.js'),'utf8'), {window,Event:class{constructor(type){this.type=type;}}});
   return {els,storage};
 }
-test('touch/keyboard button inserts at cursor without deleting selected text, emits save input, and undo restores',()=>{
+test('touch/keyboard button inserts at cursor without deleting selected text, and emits save input',()=>{
   const {els:e}=app(); const a=e.transcript; a.value='First. Second.';a.selectionStart=7;a.selectionEnd=14;a.fire('select');let saves=0;a.addEventListener('input',()=>saves++);
-  e['speaker-select'].value='2'; e['speaker-insert'].fire('click');
+  e['speaker-list'].children[1].children[1].fire('click');
   assert.equal(a.value,'First. \n\nSpeaker 2: Second.');assert.equal(saves,1);assert.equal(a.focused,true);
-  e['speaker-undo'].fire('click');assert.equal(a.value,'First. Second.');assert.equal(saves,2);
-});
-test('undo refuses to overwrite newer typed or appended upload/recognition text',()=>{
-  const {els:e}=app();e['speaker-insert'].fire('click');e.transcript.value+='new words';e['speaker-undo'].fire('click');assert.equal(e.transcript.value,'Speaker 1: new words');assert.match(e['speaker-status'].textContent,/protect/);
 });
 test('add sequential speakers and restore count; malicious storage is ignored',()=>{
   const {els:e,storage}=app();e['speaker-add'].fire('click');assert.equal(e['speaker-list'].children[2].children[0].value,'Speaker 3');assert.equal(storage.values().next().value,'3');
@@ -70,8 +66,8 @@ test('editing a speaker name saves it and uses it for subsequent labels',()=>{
   assert.deepEqual(JSON.parse(storage.get('analyticah-transcription-speaker-names')),[' Lerato ']);
 });
 test('programmatic append or clear invalidates stale cursor without overwriting words',()=>{
-  const {els:e}=app();const a=e.transcript;a.value='abc';a.selectionStart=0;a.fire('select');a.value+=' newly recognized';e['speaker-insert'].fire('click');assert.equal(a.value,'abc newly recognized\n\nSpeaker 1: ');
-  a.value='';e['speaker-insert'].fire('click');assert.equal(a.value,'Speaker 1: ');
+  const {els:e}=app();const a=e.transcript;a.value='abc';a.selectionStart=0;a.fire('select');a.value+=' newly recognized';e['speaker-list'].children[0].children[1].fire('click');assert.equal(a.value,'abc newly recognized\n\nSpeaker 1: ');
+  a.value='';e['speaker-list'].children[0].children[1].fire('click');assert.equal(a.value,'Speaker 1: ');
 });
 test('Ctrl+1..9 is transcript-scoped, uses live cursor, and ignores repeats/other combinations',()=>{
   const {els:e}=app();const a=e.transcript;a.value='before after';a.selectionStart=7;let prevented=0;
@@ -79,5 +75,5 @@ test('Ctrl+1..9 is transcript-scoped, uses live cursor, and ignores repeats/othe
   assert.equal(a.value,'before \n\nSpeaker 2: after');assert.equal(prevented,1);
   const unchanged=a.value;
   for(const ev of [{key:'1'},{ctrlKey:true,key:'9'},{ctrlKey:true,key:'1',repeat:true},{ctrlKey:true,altKey:true,key:'1'},{ctrlKey:true,metaKey:true,key:'1'},{ctrlKey:true,shiftKey:true,key:'1'}])a.fire('keydown',{...ev,preventDefault(){throw Error('should ignore')}});
-  assert.equal(a.value,unchanged);assert.equal(e['speaker-select'].events.keydown,undefined);
+  assert.equal(a.value,unchanged);assert.equal(e['speaker-list'].events.keydown,undefined);
 });
