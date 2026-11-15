@@ -24,7 +24,7 @@ Drag a speaker button onto the transcript as an alternative. **Insertion uses th
 preselected cursor, not physical drop coordinates.** Labels are manual, not automatic
 speaker identification.
 
-**Undo last label** only works before further edits alter the transcript, protecting
+**Undo** only works before further edits alter the transcript, protecting
 new words. Insertion may reset native textarea undo history. Export important drafts.
 
 ## Exports

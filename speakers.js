@@ -16,7 +16,7 @@
   if (typeof module === 'object' && module.exports) { module.exports = { insertSpeaker }; return; }
   const doc = root.document, area = doc.getElementById('transcript');
   if (!area) return;
-  const list = doc.getElementById('speaker-list'), picker = doc.getElementById('speaker-select');
+  const list = doc.getElementById('speaker-list');
   const notice = doc.getElementById('speaker-status'), add = doc.getElementById('speaker-add');
   let count = 2, cursor = area.value.length, dragging = null, undo = null, cursorText = area.value;
   let names = [];
@@ -54,16 +54,13 @@
     event.preventDefault(); rememberCursor(); apply(number);
   });
   function render() {
-    const selected = picker.value;
-    list.replaceChildren(); picker.replaceChildren();
+    list.replaceChildren();
     for (let n = 1; n <= count; n++) {
-      const option = doc.createElement('option'); option.value = String(n); picker.appendChild(option);
       const row = doc.createElement('div'); row.className = 'speaker-row';
       const name = doc.createElement('input'); name.type = 'text'; name.value = speakerName(n);
       name.setAttribute('aria-label', 'Name of speaker ' + n);
       const chip = doc.createElement('button'); chip.type = 'button'; chip.textContent = 'Insert'; chip.draggable = true;
       function updateLabel() {
-        option.textContent = speakerName(n);
         chip.setAttribute('aria-label', 'Insert ' + speakerName(n) + ' at the transcript cursor');
       }
       updateLabel();
@@ -79,15 +76,14 @@
       chip.addEventListener('dragend', () => { dragging = null; area.classList.remove('speaker-drop'); });
       row.appendChild(name); row.appendChild(chip); list.appendChild(row);
     }
-    picker.value = selected || '1'; add.disabled = count >= maxSpeakers;
+    add.disabled = count >= maxSpeakers;
   }
   add.addEventListener('click', () => {
     if (count >= maxSpeakers) return;
-    count++; render(); picker.value = String(count);
+    count++; render();
     try { root.localStorage.setItem(storageKey, String(count)); } catch (_) { announce('Speaker added for this session. Local saving is unavailable.'); return; }
     announce(count === maxSpeakers ? 'Speaker 10 added. Maximum of 10 speakers reached.' : 'Speaker ' + count + ' added.');
   });
-  doc.getElementById('speaker-insert').addEventListener('click', () => apply(Number(picker.value)));
   doc.getElementById('speaker-undo').addEventListener('click', () => {
     if (!undo || area.value !== undo.after) { announce('Transcript changed. Undo label is unavailable to protect your edits.'); return; }
     area.value = undo.before; area.focus(); area.setSelectionRange(undo.cursor, undo.cursor); cursor = undo.cursor; undo = null;
