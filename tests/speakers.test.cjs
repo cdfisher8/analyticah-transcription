@@ -11,6 +11,8 @@ test('empty transcript, middle, end and paragraph boundaries preserve all origin
   assert.equal(insertSpeaker('abc',99,1).text,'abc\n\nSpeaker 1: ');
   assert.equal(insertSpeaker('abc',-2,1).text,'Speaker 1: abc');
   assert.throws(() => insertSpeaker('safe',1,0));
+  assert.throws(() => insertSpeaker('safe',1,11));
+  assert.equal(insertSpeaker('',0,10,'Lerato').text,'Lerato: ');
 });
 function app({restore='2',storageFail=false}={}) {
   class Element {
@@ -41,19 +43,31 @@ test('undo refuses to overwrite newer typed or appended upload/recognition text'
   const {els:e}=app();e['speaker-insert'].fire('click');e.transcript.value+='new words';e['speaker-undo'].fire('click');assert.equal(e.transcript.value,'Speaker 1: new words');assert.match(e['speaker-status'].textContent,/protect/);
 });
 test('add sequential speakers and restore count; malicious storage is ignored',()=>{
-  const {els:e,storage}=app();e['speaker-add'].fire('click');assert.equal(e['speaker-list'].children[2].textContent,'Speaker 3');assert.equal(storage.values().next().value,'3');
+  const {els:e,storage}=app();e['speaker-add'].fire('click');assert.equal(e['speaker-list'].children[2].children[0].value,'Speaker 3');assert.equal(storage.values().next().value,'3');
   assert.equal(app({restore:'<script>'}).els['speaker-list'].children.length,2);
   assert.equal(app({restore:'100000'}).els['speaker-list'].children.length,2);
 });
 test('internal drag inserts only label, external text drop not intercepted, repeated drop does not duplicate',()=>{
   const {els:e}=app();let prevented=0;const drop={preventDefault(){prevented++;},dataTransfer:{setData(){}}};
   e.transcript.fire('drop',drop);assert.equal(prevented,0);
-  e['speaker-list'].children[1].fire('dragstart',drop);e.transcript.fire('drop',drop);e.transcript.fire('drop',drop);
+  e['speaker-list'].children[1].children[1].fire('dragstart',drop);e.transcript.fire('drop',drop);e.transcript.fire('drop',drop);
   assert.equal(e.transcript.value,'Speaker 2: ');assert.equal(prevented,1);
 });
 test('storage failure keeps labels usable and count is bounded',()=>{
   const {els:e}=app({storageFail:true});e['speaker-add'].fire('click');assert.match(e['speaker-status'].textContent,/unavailable/);
-  const {els:max}=app({restore:'999'});max['speaker-add'].fire('click');assert.equal(max['speaker-list'].children.length,999);assert.equal(max['speaker-add'].disabled,true);
+  const {els:max}=app({restore:'9'});
+  max['speaker-add'].fire('click');max['speaker-add'].fire('click');
+  assert.equal(max['speaker-list'].children.length,10);
+  assert.equal(max['speaker-add'].disabled,true);
+  assert.equal(app({restore:'999'}).els['speaker-list'].children.length,10);
+});
+test('editing a speaker name saves it and uses it for subsequent labels',()=>{
+  const {els:e,storage}=app();
+  const [name,insert]=e['speaker-list'].children[0].children;
+  name.value=' Lerato ';name.fire('input');name.fire('blur');insert.fire('click');
+  assert.equal(e.transcript.value,'Lerato: ');
+  assert.equal(name.value,'Lerato');
+  assert.deepEqual(JSON.parse(storage.get('analyticah-transcription-speaker-names')),[' Lerato ']);
 });
 test('programmatic append or clear invalidates stale cursor without overwriting words',()=>{
   const {els:e}=app();const a=e.transcript;a.value='abc';a.selectionStart=0;a.fire('select');a.value+=' newly recognized';e['speaker-insert'].fire('click');assert.equal(a.value,'abc newly recognized\n\nSpeaker 1: ');
