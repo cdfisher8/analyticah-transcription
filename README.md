@@ -38,6 +38,10 @@ new words. Insertion may reset native textarea undo history. Export important dr
 - The wallet preview defaults to R50, provides R50 adjustment buttons, and accepts
   other positive rand amounts. It sends a proposed amount to AnalyticaH Payments.
   Payment verification and wallet debits require the shared billing service.
+- Carry unused purchased credits across month-end. Where section 63 of the South
+  African Consumer Protection Act applies, keep each top-up valid until it is
+  fully redeemed or for at least three years from issue, whichever comes first.
+  Preserve any longer validity period offered and all statutory refund rights.
 
 ## Exports
 - **Save TXT:** plain UTF-8 transcript.
