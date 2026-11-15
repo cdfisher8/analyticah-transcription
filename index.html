@@ -31,11 +31,13 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   textarea {padding:8px}
 }
 
-.recording-ribbon {display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px}
-.recording-ribbon .language-control {display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+.recording-ribbon {display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:5px 8px;font-size:13px}
+.recording-ribbon .language-control {display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
+.recording-ribbon .controls {gap:5px}
+.recording-ribbon button,.recording-ribbon select {padding:5px 8px;border-radius:6px}
 .recording-ribbon select {max-width:100%}
 .recording-ribbon button {white-space:nowrap}
-.recording-ribbon .recording-status {margin:0;font-size:14px}
+.recording-ribbon .recording-status {margin:0}
 </style></head><body>
 <aside class="sidebar" aria-label="Microphone sound level"><div class="mic" id="mic">🎙️</div><div class="title">MIC LEVEL</div><div class="vertical-meter" id="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill" id="fill"></div></div><div id="level">0 / 100</div><label for="gain" class="title">BOOST</label><input id="gain" aria-label="Microphone boost level" type="range" min="100" max="400" step="25" value="200" style="width:57px"><output id="gainvalue">200%</output></aside>
 <main><div class="page-heading"><h1>🎙 Transcription</h1></div>
