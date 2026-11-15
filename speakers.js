@@ -18,7 +18,7 @@
   if (!area) return;
   const list = doc.getElementById('speaker-list');
   const notice = doc.getElementById('speaker-status'), add = doc.getElementById('speaker-add');
-  let count = 2, cursor = area.value.length, dragging = null, undo = null, cursorText = area.value;
+  let count = 2, cursor = area.value.length, dragging = null, cursorText = area.value;
   let names = [];
   try {
     const saved = Number(root.localStorage.getItem(storageKey));
@@ -39,12 +39,10 @@
     if (old !== cursorText) cursor = old.length; // Live speech, upload or Clear may change text without a cursor event.
     const name = speakerName(number);
     const change = insertSpeaker(old, cursor, number, name);
-    undo = { before: old, after: change.text, cursor };
     area.value = change.text;
     area.focus(); area.setSelectionRange(change.cursor, change.cursor); cursor = change.cursor;
     area.dispatchEvent(new Event('input', { bubbles: true }));
     // Existing draft handler persists the transcript and exports use the same text.
-    doc.getElementById('speaker-undo').disabled = false;
     announce(name + ' inserted.');
   }
   area.addEventListener('keydown', event => {
@@ -83,12 +81,6 @@
     count++; render();
     try { root.localStorage.setItem(storageKey, String(count)); } catch (_) { announce('Speaker added for this session. Local saving is unavailable.'); return; }
     announce(count === maxSpeakers ? 'Speaker 10 added. Maximum of 10 speakers reached.' : 'Speaker ' + count + ' added.');
-  });
-  doc.getElementById('speaker-undo').addEventListener('click', () => {
-    if (!undo || area.value !== undo.after) { announce('Transcript changed. Undo label is unavailable to protect your edits.'); return; }
-    area.value = undo.before; area.focus(); area.setSelectionRange(undo.cursor, undo.cursor); cursor = undo.cursor; undo = null;
-    area.dispatchEvent(new Event('input', { bubbles: true })); doc.getElementById('speaker-undo').disabled = true;
-    announce('Last speaker label undone.');
   });
   area.addEventListener('dragover', event => {
     if (dragging !== null) { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; area.classList.add('speaker-drop'); }

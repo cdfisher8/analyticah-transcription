@@ -26,21 +26,17 @@ function app({restore='2',storageFail=false}={}) {
     focus(){this.focused=true;}
     setSelectionRange(start,end){this.selectionStart=start;this.selectionEnd=end;}
   }
-  const ids=['transcript','speaker-list','speaker-status','speaker-add','speaker-undo'];
+  const ids=['transcript','speaker-list','speaker-status','speaker-add'];
   const els=Object.fromEntries(ids.map(id=>[id,new Element()]));
   const storage=new Map([['analyticah-transcription-speakers-v1',restore]]);
   const window={document:{getElementById:id=>els[id],createElement:()=>new Element()},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>{if(storageFail)throw Error(); storage.set(k,v);}}};
   vm.runInNewContext(fs.readFileSync(require.resolve('../speakers.js'),'utf8'), {window,Event:class{constructor(type){this.type=type;}}});
   return {els,storage};
 }
-test('touch/keyboard button inserts at cursor without deleting selected text, emits save input, and undo restores',()=>{
+test('touch/keyboard button inserts at cursor without deleting selected text, and emits save input',()=>{
   const {els:e}=app(); const a=e.transcript; a.value='First. Second.';a.selectionStart=7;a.selectionEnd=14;a.fire('select');let saves=0;a.addEventListener('input',()=>saves++);
   e['speaker-list'].children[1].children[1].fire('click');
   assert.equal(a.value,'First. \n\nSpeaker 2: Second.');assert.equal(saves,1);assert.equal(a.focused,true);
-  e['speaker-undo'].fire('click');assert.equal(a.value,'First. Second.');assert.equal(saves,2);
-});
-test('undo refuses to overwrite newer typed or appended upload/recognition text',()=>{
-  const {els:e}=app();e['speaker-list'].children[0].children[1].fire('click');e.transcript.value+='new words';e['speaker-undo'].fire('click');assert.equal(e.transcript.value,'Speaker 1: new words');assert.match(e['speaker-status'].textContent,/protect/);
 });
 test('add sequential speakers and restore count; malicious storage is ignored',()=>{
   const {els:e,storage}=app();e['speaker-add'].fire('click');assert.equal(e['speaker-list'].children[2].children[0].value,'Speaker 3');assert.equal(storage.values().next().value,'3');
