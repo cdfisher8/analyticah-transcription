@@ -27,6 +27,18 @@ speaker identification.
 **Undo last label** only works before further edits alter the transcript, protecting
 new words. Insertion may reset native textarea undo history. Export important drafts.
 
+## Account and billing integration
+
+- Sign-up and login use the shared AnalyticaH account service. At registration,
+  reserve a transcription product code consisting of `T` and six random digits
+  (including leading zeros). Enforce uniqueness with a database constraint and
+  retry on a collision. Reuse the saved code as the registration payment reference.
+- Show the remaining wallet balance from the signed-in account. Debit R10 per
+  started hour. Five minutes and one full hour each cost R10.
+- The wallet preview defaults to R50, provides R50 adjustment buttons, and accepts
+  other positive rand amounts. It sends a proposed amount to AnalyticaH Payments.
+  Payment verification and wallet debits require the shared billing service.
+
 ## Exports
 - **Save TXT:** plain UTF-8 transcript.
 - **Save Word (.docx):** local Open XML document with speaker labels and paragraphs;

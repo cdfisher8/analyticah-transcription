@@ -30,11 +30,37 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   .speakers .controls button {padding-inline:4px}
   textarea {padding:8px}
 }
+
+.wallet {display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:#e3efff}
+.wallet h2,.wallet p {margin:0}
+.wallet h2 {font-size:17px}
+.wallet a {color:#174d97}
+.wallet form,.wallet .amount-field {display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.wallet input {font:inherit;width:7ch;border:1px solid #91b3d9;border-radius:7px;padding:7px}
 </style></head><body>
 <aside class="sidebar" aria-label="Microphone sound level"><div class="mic" id="mic">🎙️</div><div class="title">MIC LEVEL</div><div class="vertical-meter" id="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill" id="fill"></div></div><div id="level">0 / 100</div><label for="gain" class="title">BOOST</label><input id="gain" aria-label="Microphone boost level" type="range" min="100" max="400" step="25" value="200" style="width:57px"><output id="gainvalue">200%</output></aside>
 <main><div class="page-heading"><h1>🎙 Transcription</h1></div>
 <section class="panel"><div class="controls"><label for="lang">Transcription language</label><select id="lang"><option value="auto">Automatic (browser default)</option><option value="af-ZA">Afrikaans</option><option value="ar-SA">Arabic</option><option value="bn-BD">Bengali</option><option value="zh-CN">Chinese (Mandarin, Simplified)</option><option value="zh-TW">Chinese (Traditional)</option><option value="nl-NL">Dutch</option><option value="en-ZA" selected>English (South Africa)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="fr-FR">French</option><option value="de-DE">German</option><option value="hi-IN">Hindi</option><option value="id-ID">Indonesian</option><option value="it-IT">Italian</option><option value="ja-JP">Japanese</option><option value="ko-KR">Korean</option><option value="pt-BR">Portuguese (Brazil)</option><option value="pt-PT">Portuguese (Portugal)</option><option value="ru-RU">Russian</option><option value="es-ES">Spanish</option><option value="sw-KE">Swahili</option><option value="ta-IN">Tamil</option><option value="tr-TR">Turkish</option><option value="uk-UA">Ukrainian</option><option value="ur-PK">Urdu</option><option value="vi-VN">Vietnamese</option><option value="zu-ZA">Zulu</option><option value="xh-ZA">Xhosa</option></select></div><div class="controls" style="margin-top:8px"><button class="primary" id="start">▶ Start listening</button><button id="stop" disabled>■ Stop</button></div><p style="margin:6px 0">Status: <span id="status" role="status">Ready</span> · <span id="quality" class="muted">Microphone not started</span></p></section>
 
+
+<section class="panel wallet" aria-labelledby="wallet-title">
+  <div>
+    <h2 id="wallet-title">Transcription wallet</h2>
+    <p class="hint">Remaining balance: unavailable</p>
+    <p class="hint">R10 per hour started. Five minutes costs R10.</p>
+  </div>
+  <form action="https://payments.analyticah.co.za/" method="get">
+    <input type="hidden" name="product" value="transcription-credit">
+    <label for="top-up">Top-up (R)</label>
+    <div class="amount-field">
+      <button type="button" data-adjust="-50" aria-label="Decrease top-up by R50">−50</button>
+      <input id="top-up" name="amount" inputmode="decimal" type="text" required pattern="[0-9]+([.,][0-9]{1,2})?" value="50" aria-describedby="wallet-help">
+      <button type="button" data-adjust="50" aria-label="Increase top-up by R50">+50</button>
+    </div>
+    <button type="submit">Preview at AnalyticaH Payments</button>
+  </form>
+  <p class="hint" id="wallet-help">Enter a positive amount or adjust it in R50 steps. Payment collection is pending.</p>
+</section>
 <div class="editor-layout"><aside class="panel speakers" aria-labelledby="speakers-title"><h2 id="speakers-title">Speakers</h2>
 <p class="hint" id="speaker-help">Edit a speaker name, then choose Insert to label the transcript at the cursor.</p>
 <div class="controls"><button id="speaker-add" type="button">Add speaker</button><label for="speaker-select">Speaker</label><select id="speaker-select"></select><button id="speaker-insert" type="button">Insert at cursor</button><button id="speaker-undo" type="button" disabled>Undo last label</button></div>
@@ -62,4 +88,4 @@ $('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('transcrip
 $('save').onclick=()=>{const blob=new Blob([$('transcript').value],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='transcript-'+new Date().toISOString().slice(0,10)+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 $('clear').onclick=()=>{if(!confirm('Clear transcript?'))return;$('transcript').value='';$('interim').textContent='';saveDraft()};
 window.addEventListener('pagehide',()=>{saveDraft();stop()});
-</script><script src="speakers.js?v=2"></script><script src="exports.js"></script></body></html>
+</script><script src="speakers.js?v=2"></script><script src="exports.js"></script><script src="wallet.js"></script></body></html>
