@@ -33,9 +33,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   #transcript {height:64vh;padding:8px}
 }
 
-.recording-ribbon {display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:5px 8px;font-size:13px}
-.recording-ribbon .language-control {display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-width:0}
-.recording-ribbon .controls {gap:5px}
+.recording-ribbon {display:flex;align-items:center;gap:6px 12px;padding:5px 8px;font-size:13px;overflow-x:auto;white-space:nowrap}
+.recording-ribbon > * {flex:none}
+.recording-ribbon .language-control {display:flex;align-items:center;gap:6px}
+.recording-ribbon .controls {flex-wrap:nowrap;gap:5px}
 .recording-ribbon button,.recording-ribbon select {padding:5px 8px;border-radius:6px}
 .recording-ribbon select {max-width:100%}
 .recording-ribbon button {white-space:nowrap}
