@@ -2,13 +2,15 @@
 (function (root) {
   'use strict';
   const storageKey = 'analyticah-transcription-speakers-v1';
-  function insertSpeaker(text, position, number) {
-    if (!Number.isSafeInteger(number) || number < 1 || number > 999) throw new Error('Invalid speaker');
+  const namesKey = 'analyticah-transcription-speaker-names';
+  const maxSpeakers = 10;
+  function insertSpeaker(text, position, number, name = 'Speaker ' + number) {
+    if (!Number.isSafeInteger(number) || number < 1 || number > maxSpeakers) throw new Error('Invalid speaker');
     const at = Math.max(0, Math.min(text.length, Number.isFinite(position) ? Math.trunc(position) : text.length));
     // Never replace a selection or existing words. A label starts a new paragraph.
     const before = text.slice(0, at), after = text.slice(at);
     const prefix = before && !before.endsWith('\n\n') ? (before.endsWith('\n') ? '\n' : '\n\n') : '';
-    const label = 'Speaker ' + number + ': ';
+    const label = name + ': ';
     return { text: before + prefix + label + after, cursor: before.length + prefix.length + label.length };
   }
   if (typeof module === 'object' && module.exports) { module.exports = { insertSpeaker }; return; }
@@ -17,10 +19,17 @@
   const list = doc.getElementById('speaker-list'), picker = doc.getElementById('speaker-select');
   const notice = doc.getElementById('speaker-status'), add = doc.getElementById('speaker-add');
   let count = 2, cursor = area.value.length, dragging = null, undo = null, cursorText = area.value;
+  let names = [];
   try {
     const saved = Number(root.localStorage.getItem(storageKey));
-    if (Number.isSafeInteger(saved) && saved >= 2 && saved <= 999) count = saved;
+    if (Number.isSafeInteger(saved) && saved >= 2 && saved <= 999) count = Math.min(saved, maxSpeakers);
+    const savedNames = JSON.parse(root.localStorage.getItem(namesKey));
+    if (Array.isArray(savedNames)) names = savedNames.slice(0, maxSpeakers);
   } catch (_) { /* Transcript draft remains independent of speaker preferences. */ }
+  function speakerName(number) {
+    const name = names[number - 1];
+    return (typeof name === 'string' && name.replace(/[\r\n]+/g, ' ').trim()) || 'Speaker ' + number;
+  }
   function rememberCursor() { cursor = area.selectionStart; cursorText = area.value; }
   for (const event of ['select', 'keyup', 'click', 'input', 'blur']) area.addEventListener(event, rememberCursor);
   function announce(message) { notice.textContent = message; }
@@ -28,14 +37,15 @@
     if (!Number.isSafeInteger(number) || number < 1 || number > count) return;
     const old = area.value;
     if (old !== cursorText) cursor = old.length; // Live speech, upload or Clear may change text without a cursor event.
-    const change = insertSpeaker(old, cursor, number);
+    const name = speakerName(number);
+    const change = insertSpeaker(old, cursor, number, name);
     undo = { before: old, after: change.text, cursor };
     area.value = change.text;
     area.focus(); area.setSelectionRange(change.cursor, change.cursor); cursor = change.cursor;
     area.dispatchEvent(new Event('input', { bubbles: true }));
     // Existing draft handler persists the transcript and exports use the same text.
     doc.getElementById('speaker-undo').disabled = false;
-    announce('Speaker ' + number + ' inserted. Type or edit their paragraph.');
+    announce(name + ' inserted.');
   }
   area.addEventListener('keydown', event => {
     if (!event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || event.repeat || !/^[1-9]$/.test(event.key)) return;
@@ -47,21 +57,35 @@
     const selected = picker.value;
     list.replaceChildren(); picker.replaceChildren();
     for (let n = 1; n <= count; n++) {
-      const option = doc.createElement('option'); option.value = String(n); option.textContent = 'Speaker ' + n; picker.appendChild(option);
-      const chip = doc.createElement('button'); chip.type = 'button'; chip.textContent = 'Speaker ' + n; chip.draggable = true;
-      chip.setAttribute('aria-label', 'Insert Speaker ' + n + ' at the transcript cursor');
+      const option = doc.createElement('option'); option.value = String(n); picker.appendChild(option);
+      const row = doc.createElement('div'); row.className = 'speaker-row';
+      const name = doc.createElement('input'); name.type = 'text'; name.value = speakerName(n);
+      name.setAttribute('aria-label', 'Name of speaker ' + n);
+      const chip = doc.createElement('button'); chip.type = 'button'; chip.textContent = 'Insert'; chip.draggable = true;
+      function updateLabel() {
+        option.textContent = speakerName(n);
+        chip.setAttribute('aria-label', 'Insert ' + speakerName(n) + ' at the transcript cursor');
+      }
+      updateLabel();
+      name.addEventListener('input', () => {
+        names[n - 1] = name.value;
+        updateLabel();
+        try { root.localStorage.setItem(namesKey, JSON.stringify(names)); }
+        catch (_) { announce('Speaker name changed for this session. Local saving is unavailable.'); }
+      });
+      name.addEventListener('blur', () => { name.value = speakerName(n); });
       chip.addEventListener('click', () => apply(n));
       chip.addEventListener('dragstart', event => { dragging = n; event.dataTransfer.setData('application/x-analyticah-speaker', String(n)); event.dataTransfer.effectAllowed = 'copy'; });
       chip.addEventListener('dragend', () => { dragging = null; area.classList.remove('speaker-drop'); });
-      list.appendChild(chip);
+      row.appendChild(name); row.appendChild(chip); list.appendChild(row);
     }
-    picker.value = selected || '1'; add.disabled = count >= 999;
+    picker.value = selected || '1'; add.disabled = count >= maxSpeakers;
   }
   add.addEventListener('click', () => {
-    if (count >= 999) return;
+    if (count >= maxSpeakers) return;
     count++; render(); picker.value = String(count);
     try { root.localStorage.setItem(storageKey, String(count)); } catch (_) { announce('Speaker added for this session. Local saving is unavailable.'); return; }
-    announce('Speaker ' + count + ' added.');
+    announce(count === maxSpeakers ? 'Speaker 10 added. Maximum of 10 speakers reached.' : 'Speaker ' + count + ' added.');
   });
   doc.getElementById('speaker-insert').addEventListener('click', () => apply(Number(picker.value)));
   doc.getElementById('speaker-undo').addEventListener('click', () => {

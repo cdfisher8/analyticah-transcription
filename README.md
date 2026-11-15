@@ -9,10 +9,12 @@ Static live transcription app at `https://transcribe.analyticah.co.za`.
 - TXT download, valid Open XML Word (.docx) download, and browser Print / Save PDF.
 
 ## Manual speakers
-Open **Manual speakers** above the transcript. Place the cursor where a speaker
-starts, then tap a speaker button or select a speaker and choose **Insert at cursor**.
+Use the **Speakers** panel to the left of the transcript. Edit a speaker's name,
+place the cursor where they start speaking, then choose **Insert** beside their name.
 A labelled paragraph is inserted without deleting selected text. **Add speaker** adds
-the next number. Speaker count is saved locally (maximum 999).
+the next speaker, up to 10. Speaker names and count are saved in the browser.
+Renaming a speaker applies to future insertions. To change an existing label, edit
+it directly in the transcript.
 
 With the transcript focused, **Ctrl+1…Ctrl+9** inserts the matching existing speaker.
 Browsers/operating systems may reserve these keys for tab switching before the app
@@ -20,7 +22,7 @@ receives them. Buttons remain the reliable keyboard/touch fallback.
 
 Drag a speaker button onto the transcript as an alternative. **Insertion uses the
 preselected cursor, not physical drop coordinates.** Labels are manual, not automatic
-speaker identification. Edit a label directly in the transcript to change it.
+speaker identification.
 
 **Undo last label** only works before further edits alter the transcript, protecting
 new words. Insertion may reset native textarea undo history. Export important drafts.
@@ -49,7 +51,7 @@ are included. Labels and exports work with the editable transcript.
 ## Privacy and deployment
 Speech recognition may send audio to the browser vendor's online service. Meter
 movement alone does not prove recognition. Review output carefully. Drafts and
-speaker count live in this browser's local storage, not a cloud backup.
+speaker settings live in this browser's local storage, not a cloud backup.
 
 GitHub Pages publishes `main`; merging into it changes the live site. Keep work on
 feature branches for review and retain the prior commit for rollback. Preserve CNAME
