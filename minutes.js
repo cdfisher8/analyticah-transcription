@@ -33,8 +33,9 @@ const doc=root.document,host=doc.getElementById('minutes-maker'),transcript=doc.
 const key='analyticah-minutes-v1';let state=blank(),selection='',selectionSource='',selectionStart=0,selectionEnd=0,timer,storedValue=null,dirty=false;
 const $=id=>doc.getElementById(id),say=message=>{$('minutes-status').textContent=message;};
 try{storedValue=localStorage.getItem(key)||null;state=normalise(JSON.parse(storedValue||'null'));}catch(_){say('Saved minutes could not be read. Original transcript is separate.');}
-function save(markDirty=true){clearTimeout(timer);if(markDirty)dirty=true;if(!dirty)return;try{if((localStorage.getItem(key)||null)!==storedValue){say('Minutes changed in another tab. Export this draft now, then reload to see the other version. No draft was overwritten.');return;}const next=JSON.stringify(state);localStorage.setItem(key,next);storedValue=next;dirty=false;say('Minutes draft saved in this browser only.');}catch(_){say('Minutes could not be saved locally. Export TXT now to keep a copy.');}}
-function changed(){dirty=true;clearTimeout(timer);timer=setTimeout(()=>save(false),300);}
+function refreshPreview(){if(!$('minutes-output-panel').hidden)$('minutes-output').value=toText(state);}
+function save(markDirty=true){refreshPreview();clearTimeout(timer);if(markDirty)dirty=true;if(!dirty)return;try{if((localStorage.getItem(key)||null)!==storedValue){say('Minutes changed in another tab. Export this draft now, then reload to see the other version. No draft was overwritten.');return;}const next=JSON.stringify(state);localStorage.setItem(key,next);storedValue=next;dirty=false;say('Minutes draft saved in this browser only.');}catch(_){say('Minutes could not be saved locally. Export TXT now to keep a copy.');}}
+function changed(){refreshPreview();dirty=true;clearTimeout(timer);timer=setTimeout(()=>save(false),300);}
 function field(label,value,onchange,type='text'){
  const wrap=doc.createElement('label');wrap.className='minutes-field';const span=doc.createElement('span');span.textContent=label;wrap.appendChild(span);
  const input=doc.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')input.type=type;input.value=value;input.addEventListener('input',()=>{onchange(input.value);changed();});wrap.appendChild(input);return wrap;
@@ -75,3 +76,4 @@ $('minutes-pdf').onclick=()=>{
 $('minutes-new').onclick=()=>{if(!confirm('Start new minutes? Export the current minutes first if needed. This replaces only the minutes draft, never the transcript.'))return;state=blank();selection='';selectionSource='';$('minutes-selected').textContent='Select transcript text, then add it as a topic. The original stays unchanged.';$('minutes-candidates').replaceChildren();$('minutes-output-panel').hidden=true;render();save();};
 root.addEventListener('pagehide',()=>save(false));render();
 })(typeof window==='undefined'?globalThis:window);
+

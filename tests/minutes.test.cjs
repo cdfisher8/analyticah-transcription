@@ -42,3 +42,25 @@ test('closing stale tab does not overwrite a newer minutes draft',()=>{
  const {e,events,storage}=app();const newer=JSON.stringify({title:'Other tab meeting'});storage.set('analyticah-minutes-v1',newer);events.pagehide();assert.equal(storage.get('analyticah-minutes-v1'),newer);
  e['minutes-title'].value='My edits';e['minutes-title'].fire('input');events.pagehide();assert.equal(storage.get('analyticah-minutes-v1'),newer);assert.match(e['minutes-status'].textContent,/another tab/);e['minutes-preview'].click();assert.match(e['minutes-output'].value,/My edits/);
 });
+
+
+test('open minutes preview stays current after field edits and structural changes',()=>{
+ const {e}=app();e['minutes-preview'].click();
+ e['minutes-title'].value='Updated title';e['minutes-title'].fire('input');
+ assert.match(e['minutes-output'].value,/Updated title/);
+ e['minutes-add-attendee'].click();const row=e['minutes-attendees'].children[0];
+ const input=row.querySelector('input');input.value='New attendee';input.fire('input');
+ assert.match(e['minutes-output'].value,/New attendee/);
+ row.children.at(-1).click();assert.doesNotMatch(e['minutes-output'].value,/New attendee/);
+ e['minutes-add-topic'].click();const card=e['minutes-topics'].children[0];
+ const heading=card.querySelector('input');heading.value='Changed topic';heading.fire('input');
+ assert.match(e['minutes-output'].value,/Changed topic/);
+ card.children.at(-1).click();assert.doesNotMatch(e['minutes-output'].value,/Changed topic/);
+});
+test('hidden minutes preview stays hidden while editing, including storage failure',()=>{
+ const {e}=app({storageFail:true});e['minutes-output-panel'].hidden=true;
+ e['minutes-title'].value='Unsaved but reviewable';e['minutes-title'].fire('input');
+ assert.equal(e['minutes-output-panel'].hidden,true);e['minutes-preview'].click();
+ e['minutes-add-topic'].click();assert.match(e['minutes-output'].value,/Untitled topic/);
+ assert.match(e['minutes-status'].textContent,/could not be saved/);
+});
